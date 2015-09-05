@@ -115,7 +115,7 @@ $(document).ready(function($) {
 		});
 
 	// 柱形图
-	
+
 	//画布大小
 	var width = 400;
 	var height = 400;
@@ -132,15 +132,25 @@ $(document).ready(function($) {
 	//定义一个数组
 	var dataset = [10, 20, 30, 40, 33, 24, 12, 5];
 		
+	// //x轴的比例尺
+	// var xScale = d3.scale.ordinal()
+	// 	.domain(d3.range(dataset.length))
+	// 	.rangeRoundBands([0, width - padding.left - padding.right]);
+
+	// //y轴的比例尺
+	// var yScale = d3.scale.linear()
+	// 	.domain([0,d3.max(dataset)])
+	// 	.range([height - padding.top - padding.bottom, 0]);
+
 	//x轴的比例尺
-	var xScale = d3.scale.ordinal()
-		.domain(d3.range(dataset.length))
-		.rangeRoundBands([0, width - padding.left - padding.right]);
+	var xScale = d3.scale.linear()
+		.domain([0,d3.max(dataset)])
+		.range([0, width - padding.left - padding.right]);
 
 	//y轴的比例尺
-	var yScale = d3.scale.linear()
-		.domain([0,d3.max(dataset)])
-		.range([height - padding.top - padding.bottom, 0]);
+	var yScale = d3.scale.ordinal()
+		.domain(d3.range(dataset.length))
+		.rangeRoundBands([height - padding.top - padding.bottom, 0]);
 
 	//定义x轴
 	var xAxis = d3.svg.axis()
@@ -162,39 +172,43 @@ $(document).ready(function($) {
 		.append("rect")
 		.attr("class","MyRect")
 		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
-		.attr("x", function(d,i){
-			return xScale(i) + rectPadding/2;
-		} )
-		.attr("y",function(d){
-			return yScale(d);
+		
+		.attr("y",function(d, i){
+			return yScale(i) + rectPadding/2;
 		})
-		.attr("width", xScale.rangeBand() - rectPadding )
+		.attr("width", function(d) {
+			return width - padding.left - padding.right - xScale(d);
+		//	return xScale(d);
+		})
 		.attr("height", function(d){
-			return height - padding.top - padding.bottom - yScale(d);
+			//return height - padding.top - padding.bottom - yScale(d);
+			return yScale.rangeBand() - rectPadding;
 		});
+		// .attr("width", xScale.rangeBand() - rectPadding )
+
 
 	//添加文字元素
-	var texts = svg.selectAll(".MyText")
-		.data(dataset)
-		.enter()
-		.append("text")
-		.attr("class","MyText")
-		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
-		.attr("x", function(d,i){
-			return xScale(i) + rectPadding/2;
-		} )
-		.attr("y",function(d){
-			return yScale(d);
-		})
-		.attr("dx",function(){
-			return (xScale.rangeBand() - rectPadding)/2;
-		})
-		.attr("dy",function(d){
-			return 20;
-		})
-		.text(function(d){
-			return d;
-		});
+	// var texts = svg.selectAll(".MyText")
+	// 	.data(dataset)
+	// 	.enter()
+	// 	.append("text")
+	// 	.attr("class","MyText")
+	// 	.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+	// 	.attr("x", function(d,i){
+	// 		return xScale(i) + rectPadding/2;
+	// 	} )
+	// 	.attr("y",function(d){
+	// 		return yScale(d);
+	// 	})
+	// 	.attr("dx",function(){
+	// 		return (xScale.rangeBand() - rectPadding)/2;
+	// 	})
+	// 	.attr("dy",function(d){
+	// 		return 20;
+	// 	})
+	// 	.text(function(d){
+	// 		return d;
+	// 	});
 
 	//添加x轴
 	svg.append("g")
