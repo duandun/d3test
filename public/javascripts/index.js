@@ -1,4 +1,5 @@
 $(document).ready(function($) {
+	// 饼图
 	var width = 600; //SVG绘制区域的宽度
 	var height = 600; //SVG绘制区域的高度
 
@@ -112,4 +113,203 @@ $(document).ready(function($) {
 
 			tooltip.style("opacity", 0.0);
 		});
+
+	// 柱形图
+	
+	//画布大小
+	var width = 400;
+	var height = 400;
+
+	//在 body 里添加一个 SVG 画布	
+	var svg = d3.select("body")
+		.append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+	//画布周边的空白
+	var padding = {left:30, right:30, top:20, bottom:20};
+
+	//定义一个数组
+	var dataset = [10, 20, 30, 40, 33, 24, 12, 5];
+		
+	//x轴的比例尺
+	var xScale = d3.scale.ordinal()
+		.domain(d3.range(dataset.length))
+		.rangeRoundBands([0, width - padding.left - padding.right]);
+
+	//y轴的比例尺
+	var yScale = d3.scale.linear()
+		.domain([0,d3.max(dataset)])
+		.range([height - padding.top - padding.bottom, 0]);
+
+	//定义x轴
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom");
+		
+	//定义y轴
+	var yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient("left");
+
+	//矩形之间的空白
+	var rectPadding = 4;
+
+	//添加矩形元素
+	var rects = svg.selectAll(".MyRect")
+		.data(dataset)
+		.enter()
+		.append("rect")
+		.attr("class","MyRect")
+		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		.attr("x", function(d,i){
+			return xScale(i) + rectPadding/2;
+		} )
+		.attr("y",function(d){
+			return yScale(d);
+		})
+		.attr("width", xScale.rangeBand() - rectPadding )
+		.attr("height", function(d){
+			return height - padding.top - padding.bottom - yScale(d);
+		});
+
+	//添加文字元素
+	var texts = svg.selectAll(".MyText")
+		.data(dataset)
+		.enter()
+		.append("text")
+		.attr("class","MyText")
+		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		.attr("x", function(d,i){
+			return xScale(i) + rectPadding/2;
+		} )
+		.attr("y",function(d){
+			return yScale(d);
+		})
+		.attr("dx",function(){
+			return (xScale.rangeBand() - rectPadding)/2;
+		})
+		.attr("dy",function(d){
+			return 20;
+		})
+		.text(function(d){
+			return d;
+		});
+
+	//添加x轴
+	svg.append("g")
+		.attr("class","axis")
+		.attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
+		.call(xAxis); 
+		
+	//添加y轴
+	svg.append("g")
+		.attr("class","axis")
+		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		.call(yAxis);
+
+	// 直方图
+	var width = 500;
+	var height = 500;
+	
+	//添加SVG绘制区域
+	var svg = d3.select("body").append("svg")
+						.attr("width",width)
+						.attr("height",height);
+	
+	//生成随机数组
+	var rand = d3.random.normal(0,25);
+	var dataset = [];
+	for(var i=0;i<100;i++){
+		dataset.push( rand() );
+	}
+	console.log(dataset);
+
+	//定义布局
+	var bin_num = 15;
+	var histogram = d3.layout.histogram()
+						.range([-50,50])
+						.bins(bin_num)
+						.frequency(true);
+	
+	//转换数据，输出数据
+	var data = histogram(dataset);
+	console.log(data);
+	
+	//定义比例尺
+	var max_height = 400;
+	var rect_step = 30;
+	var heights = [];
+	for(var i=0;i<data.length;i++){
+		heights.push( data[i].y );
+	}
+	var yScale = d3.scale.linear()
+						.domain([d3.min(heights),d3.max(heights)])
+						.range([0,max_height]);
+	
+	//绘制图形
+	var graphics = svg.append("g")
+						.attr("transform","translate(30,20)");
+	
+	//绘制矩形
+	graphics.selectAll("rect")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("x",function(d,i){
+				return i * rect_step; 
+			})
+			.attr("y", function(d,i){
+				return max_height - yScale(d.y);
+			})
+			.attr("width", function(d,i){
+				return rect_step - 2; 
+			})
+			.attr("height", function(d){
+				return yScale(d.y);
+			})
+			.attr("fill","steelblue");
+	
+	//绘制坐标轴的直线
+	graphics.append("line")
+			.attr("stroke","black")
+			.attr("stroke-width","1px")
+			.attr("x1",0)
+			.attr("y1",max_height)
+			.attr("x2",data.length * rect_step)
+			.attr("y2",max_height);
+	
+	//绘制坐标轴的分隔符直线
+	graphics.selectAll(".linetick")
+			.data(data)
+			.enter()
+			.append("line")
+			.attr("stroke","black")
+			.attr("stroke-width","1px")
+			.attr("x1",function(d,i){
+				return i * rect_step + rect_step/2;
+			})
+			.attr("y1",max_height)
+			.attr("x2",function(d,i){
+				return i * rect_step + rect_step/2;
+			})
+			.attr("y2",max_height + 5);
+	
+	//绘制文字
+	graphics.selectAll("text")
+			.data(data)
+			.enter()
+			.append("text")
+			.attr("font-size","10px")
+			.attr("x",function(d,i){
+				return i * rect_step; 
+			})
+			.attr("y", function(d,i){
+				return max_height;
+			})
+			.attr("dx",rect_step/2 - 8)
+			.attr("dy","15px")
+			.text(function(d){
+				return Math.floor(d.x);
+			});
 });
