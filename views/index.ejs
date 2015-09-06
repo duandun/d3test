@@ -8,6 +8,7 @@
     <script src="/libs/bootstrap/dist/js/bootstrap.js" type="text/javascript" charset="utf-8" async defer></script>
     <script src="/libs/d3/d3.js" type="text/javascript" charset="utf-8" async defer></script>
     <script src="/javascripts/index.js" type="text/javascript" charset="utf-8" async defer></script>
+    <script src="/javascripts/test.js" type="text/javascript" charset="utf-8" async defer></script>
 <style>
   .tooltip{
    font-family: simsun;
@@ -49,8 +50,10 @@
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
     <div id="container">
-    	<div id="content"></div>
+    	<div id="content" style="float:left;"></div>
+      <div id="content1" style="float:right"></div>
     </div>
+    <div style="clear:both"></div>
   </body>
 
   <script>
